@@ -1,6 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
+import { InputText } from "primereact/inputtext";
 import "@mobiscroll/react/dist/css/mobiscroll.min.css";
-import { Eventcalendar, setOptions, toast } from "@mobiscroll/react";
+import {
+  Eventcalendar,
+  Input,
+  Textarea,
+  Dropdown,
+  Popup,
+  setOptions,
+  toast,
+} from "@mobiscroll/react";
 import { useEffect } from "react";
 
 setOptions({
@@ -8,9 +17,14 @@ setOptions({
   themeVariant: "light",
 });
 
-function Calendar({ socket }) {
-  const [isOpen, setOpen] = React.useState(false);
+function Calendar({ socket, checkEvent, plan }) {
   const [events, setEvents] = React.useState([]);
+  const [isOpen, setOpen] = React.useState(false);
+  const [title, setTitle] = React.useState("New Event");
+  const [details, setDetails] = React.useState("");
+  const [eventLocation, setEventLocation] = React.useState("");
+  const [addEvent, setAddEvent] = React.useState(null);
+  const [anchor, setAnchor] = React.useState(null);
 
   const view = React.useMemo(() => {
     return {
@@ -22,18 +36,38 @@ function Calendar({ socket }) {
     };
   }, []);
 
+  const selectedEventsChange = React.useCallback((args) => {
+    checkEvent(args);
+  }, []);
+
   const eventUpdateFail = React.useCallback(() => {
     toast({
       message: "Can't create event on this date",
     });
   }, []);
 
-  const onClose = React.useCallback(() => {
+  const onClose = function () {
     setOpen(false);
-    toast({
-      message: "New task added",
-    });
-  }, []);
+    const colours = ["#D1CAF2", "#F2D6CA", "#EF7C4B"];
+    if (addEvent) {
+      socket.emit("createEvent", {
+        start: addEvent.start.getTime(),
+        end: addEvent.end.getTime() || "",
+        allDay: addEvent.allDay,
+        location: eventLocation,
+        description: details,
+        plan: plan,
+        title: title,
+        color: addEvent.color
+          ? addEvent.color
+          : colours[Math.floor(Math.random() * colours.length)],
+      });
+      setTitle("New Title");
+      toast({
+        message: "New Event added!",
+      });
+    }
+  };
 
   useEffect(() => {
     socket.on("newEvent", (data) => {
@@ -43,70 +77,59 @@ function Calendar({ socket }) {
     });
   }, [socket, events]);
 
-  const onEventCreated = React.useCallback(
-    (args) => {
-      // console.log(args.event);
-      // console.log(events);
-      socket.emit("createEvent", {
-        start: args.event.start.getTime(),
-        end: args.event.end.getTime() || "",
-        allDay: args.event.allDay,
-        description: "Beach day fun day",
-        title: args.event.title,
-        color: args.event.color,
-      });
-      //   setEvents([
-      //     ...events,
-      //     {
-      //       start: args.event.start,
-      //       end: args.event.end || "",
-      //       allDay: args.event.allDay,
-      //       title: args.event.title,
-      //       color: args.event.color,
-      //     },
-      //   ]);
-    },
-    [socket, events]
-  );
+  useEffect(() => {
+    socket.on("dbEvents", (data) => {
+      console.log(
+        data.map(({ startdate, enddate, ...rest }) => ({
+          ...rest,
+          start: new Date(Number(startdate)),
+          end: new Date(Number(enddate)),
+        }))
+      );
+      setEvents(
+        data.map(({ startdate, enddate, ...rest }) => ({
+          ...rest,
+          start: new Date(Number(startdate)),
+          end: new Date(Number(enddate)),
+        }))
+      );
+    });
+  }, [socket, events]);
 
-  const onPageLoading = React.useCallback((event, inst) => {
-    // const year = event.month.getFullYear();
-    // const month = event.month.getMonth();
-    // const day = event.firstDay.getDate();
-    // getJson(
-    //   "https://trial.mobiscroll.com/weeklyevents/?year=" +
-    //     year +
-    //     "&month=" +
-    //     month +
-    //     "&day=" +
-    //     day,
-    //   (data) => {
-    //     const newEvents = [];
-    //     for (const value of data) {
-    //       newEvents.push({
-    //         start: value.start,
-    //         end: value.end || "",
-    //         allDay: value.allDay,
-    //         title: value.title,
-    //         color: value.color,
-    //       });
-    //     }
-    //     setEvents(newEvents);
-    //     toast({ message: "New events loaded" });
-    //   },
-    //   "jsonp"
-    // );
+  const fillDialog = React.useCallback((args) => {
+    setAddEvent(args.event);
+    setAnchor(args.target);
+
+    setOpen(true);
   }, []);
 
+  const onEventCreated = React.useCallback(
+    (args) => {
+      fillDialog(args);
+    },
+    [fillDialog]
+  );
+
+  useEffect(() => {
+    console.log(plan);
+    socket.emit("retrieveEvents", {
+      plan: plan.label,
+    });
+  }, [plan]);
+
+  console.log(events);
   return (
     <div
       className="mbsc-col-sm-9 external-event-calendar"
       style={{ overflow: "scroll", height: "80vh" }}
     >
+      {/* {events.length} */}
       <Eventcalendar
         theme="material"
         // themeVariant="dark"
+        selectMultipleEvents={true}
         view={view}
+        refDate={plan.refDate}
         dragToMove={true}
         externalDrop={true}
         dragToCreate={true}
@@ -114,11 +137,46 @@ function Calendar({ socket }) {
         dragTimeStep={15}
         eventDelete={true}
         data={events}
+        onSelectedEventsChange={selectedEventsChange}
         onEventCreated={onEventCreated}
         onEventCreateFailed={eventUpdateFail}
         onEventUpdateFailed={eventUpdateFail}
-        onPageLoading={onPageLoading}
+        // onPageLoading={onPageLoading}
       />
+      <Popup
+        display="anchored"
+        width={260}
+        contentPadding={false}
+        touchUi={false}
+        headerText="Create Event"
+        buttons={["ok"]}
+        isOpen={isOpen}
+        onClose={onClose}
+        anchor={anchor}
+      >
+        <div className="mbsc-form-group" style={{ paddingLeft: "2em" }}>
+          <span style={{ paddingLeft: "2em" }}>
+            <p style={{ marginTop: "-2em" }}>Title</p>
+            <InputText
+              id="title"
+              // value={value}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <p>Details</p>
+            <InputText
+              id="details"
+              // value={value}
+              onChange={(e) => setDetails(e.target.value)}
+            />
+            <p>Location</p>
+            <InputText
+              id="eventLocation"
+              // value={value}
+              onChange={(e) => setEventLocation(e.target.value)}
+            />
+          </span>
+        </div>
+      </Popup>
     </div>
   );
 }
