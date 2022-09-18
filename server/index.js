@@ -24,7 +24,6 @@ socketIO.on("connection", (socket) => {
   // console.log(`⚡: ${socket.id} user just connected!`);
   socket.on("disconnect", () => {
     console.log("🔥: A user disconnected");
-    // client.end();
   });
   socket.on("message", (data) => {
     socketIO.emit("messagePush", data);

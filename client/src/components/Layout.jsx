@@ -8,6 +8,7 @@ import Comments from "./Comments";
 import Chatbox from "./Chatbox";
 import { OrderList } from "primereact/orderlist";
 import { Divider } from "primereact/divider";
+import Recommend from "./Recommend";
 
 const Layout = ({ socket }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -156,7 +157,8 @@ const Layout = ({ socket }) => {
                       <Chatbox socket={socket} />
                     </TabPanel>
                     <TabPanel header="Suggestions">
-                      <DragDrop />
+                      {/* <DragDrop /> */}
+                      <Recommend plan={activePlan} />
                     </TabPanel>
                   </TabView>
                 ) : (
