@@ -9,33 +9,34 @@ def activity_recommendation(text):
     Returns a list of recommended activities based on a group chat conversation.
     '''
 
-    text = '\n'.join(['- ' + element for element in text])
-    full_input = 'Chat messages:\n' + text + '\nActivities based on the chat messages:'
+    full_input = 'Chat messages:\n' + text + '\nActivities:'
     
     examples = '''
-    Chat messages:
-    - I want to go to the beach and eat ice cream
-    - sounds good
-    - great!
-    Activities: go to the beach, eat ice cream
-    -----
-    Chat messages:
-    - How about we go to the park and play board games?
-    - I like board games but I'd rather stay at home
-    - Let's have drinks too
-    Activities: play board games, have drinks
-    -----
-    '''
+Chat messages:
+- I want to go to the beach and eat ice cream
+Activities: Beach, Ice cream
+-----
+Chat messages:
+- How about we go to the park and play board games? We could even have drinks too
+Activities: Board games, Park, Drinks
+-----
+Chat messages:
+- I love eating, drinking, and karaoke!
+Activities: Restaurant, Drinks, Karayoke
+-----
+'''
 
     full_prompt = examples + full_input 
 
-    response = co.generate(prompt = full_prompt, max_tokens=50, stop_sequences=['-----']) 
+    print("PINGPINGPING\t\t\t", full_prompt)
 
+    response = co.generate(prompt = full_prompt, max_tokens=50, stop_sequences=['-----']) 
+    print("PING 1:\t", response, "\n\nPING 2\n\n")
     activity = response.generations[0].text
     activity_intermediate = activity.splitlines()[0]
     activity_list = activity_intermediate.split(', ')
     
-    return activity, activity_list # ('Prediction: {}'.format(response.generations[0].text))
+    return activity_list # ('Prediction: {}'.format(response.generations[0].text))
 
 def location_recommendation(activity): # do a nearby search
     return None
@@ -53,3 +54,5 @@ if __name__ == "__main__":
 
 # if time: find a way to consider fine tuning: https://docs.cohere.ai/finetuning-wiki 
 
+if __name__ == "__main__":
+    print(activity_recommendation("I would love to go Kayaking, eating at Lazeez Restaurant, drinking at Chatime, or go Bowling"))
