@@ -19,6 +19,10 @@ socketIO.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("🔥: A user disconnected");
   });
+  socket.on("message", (data) => {
+    console.log(data);
+    socketIO.emit("messagePush", data);
+  });
   socket.on("createEvent", (data) => {
     socketIO.emit("newEvent", data);
   });
