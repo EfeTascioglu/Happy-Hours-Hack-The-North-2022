@@ -6,12 +6,14 @@ API_KEY = "AIzaSyBY4Qmdc6v9TWG3RAWLRRx4fZh8zu968Rg"
 map_client = googlemaps.Client(key=API_KEY)
 co = cohere.Client('Dbv19fLVO2RpG0HfwdaDIEQlHt2svAsebFq3WgG0', '2021-11-08')
 
+# default src: https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&PARAMETERS
+
 # setting variables
 location = (43.47322824035977, -80.53919130779408) # coordinates of Engineering 7 Building, UWaterloo
 search_string = 'ice cream' # activity from user input
 distance = 5000 # 5 km
 business_list = []
-max_top_search_results = 7
+max_top_search_results = 5
 full_location_list = []
 
 
@@ -66,10 +68,13 @@ def generate_complete_location_recommendation(location_string):
         one_location.append(business_list[i].get('name'))
         one_location.append(business_list[i].get('vicinity'))
         one_location.append(generate_description(business_list[i].get('name'), business_list[i].get('types'), business_list[i].get('rating')))
+        one_location.append('https://www.google.com/maps/embed/v1/place?key='+str(API_KEY)+'&' + str(business_list[i].get('place_id')))
         full_location_list.append(one_location)
         one_location = []
     return full_location_list
 
 # testing
-# if __name__ == '__main__':
-#     print(generate_complete_location_recommendation("shawarma"))
+'''
+if __name__ == '__main__':
+    print(generate_complete_location_recommendation("ice cream"))
+'''
