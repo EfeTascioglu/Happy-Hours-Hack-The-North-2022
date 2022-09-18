@@ -1,18 +1,18 @@
 import googlemaps
 import cohere
 
-
+# connecting to Google Maps and Cohere APIs
 API_KEY = "AIzaSyBY4Qmdc6v9TWG3RAWLRRx4fZh8zu968Rg"
 map_client = googlemaps.Client(key=API_KEY)
+co = cohere.Client('Dbv19fLVO2RpG0HfwdaDIEQlHt2svAsebFq3WgG0', '2021-11-08')
 
+# setting variables
 location = (43.47322824035977, -80.53919130779408) # coordinates of Engineering 7 Building, UWaterloo
 search_string = 'ice cream' # activity from user input
 distance = 5000 # 5 km
 business_list = []
 max_top_search_results = 7
 full_location_list = []
-
-co = cohere.Client('Dbv19fLVO2RpG0HfwdaDIEQlHt2svAsebFq3WgG0', '2021-11-08')
 
 
 def generate_description(name, types, rating):
@@ -46,36 +46,30 @@ Short Exciting Location Description:'''
     description = response.generations[0].text
     #description.replace('\n', '')
     #description.replace('--', '')
-    # print("New description: " + description[:-3])
-    print("=====================================")
-
-    print(description)
-    #print(type(description))
-
 
     if '!' in description:
         exclamation_index = description.index('!')
         # remove all the characters of description after the exclamation index
         description = description[:exclamation_index+1]
-    elif '.' in description:
-        return description.strip()
-        period_index = description[:description.index(['.'])]
-        description = description[:period_index+1]
+        return description
     else:
         return description[:-3]
 
-    
-
-response = map_client.places_nearby(location = location, keyword = search_string, radius = distance)
-business_list.extend(response.get('results'))
-one_location = []
-for i in range(0, max_top_search_results):
-    one_location.append(business_list[i].get('name'))
-    one_location.append(business_list[i].get('vicinity'))
-    one_location.append(generate_description(business_list[i].get('name'), business_list[i].get('types'), business_list[i].get('rating')))
-    full_location_list.append(one_location)
+def generate_complete_location_recommendation(location_string):
+    '''
+    Takes the name of a location and returns a list of lists containing the name, address and description.
+    '''
+    response = map_client.places_nearby(location = location, keyword = location_string, radius = distance)
+    business_list.extend(response.get('results'))
     one_location = []
-    print(full_location_list[i])
-    print("=====================================")
+    for i in range(0, max_top_search_results):
+        one_location.append(business_list[i].get('name'))
+        one_location.append(business_list[i].get('vicinity'))
+        one_location.append(generate_description(business_list[i].get('name'), business_list[i].get('types'), business_list[i].get('rating')))
+        full_location_list.append(one_location)
+        one_location = []
+    return full_location_list
 
-
+# testing
+# if __name__ == '__main__':
+#     print(generate_complete_location_recommendation("shawarma"))
