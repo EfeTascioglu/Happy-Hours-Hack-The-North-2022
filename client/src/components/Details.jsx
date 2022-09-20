@@ -7,7 +7,7 @@ function Details({ event }) {
   if (!event) {
     return <Card title={"Event Details"}></Card>;
   }
-  console.log(event);
+  // console.log(event);
   return (
     <Card title={event.title}>
       <h4 style={{ marginTop: "-1em" }}>
@@ -17,7 +17,18 @@ function Details({ event }) {
           " - " +
           new Date(event.end).toTimeString().slice(0, 5)}
       </h4>
-      <Avatar label="A" size="large" />
+      <h5>{event.location}</h5>
+      {event.imageLink && (
+        <iframe
+          width="600"
+          height="450"
+          style="border:0"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+          src={event.imageLink}
+        ></iframe>
+      )}
       <p>{event.description}</p>
     </Card>
   );

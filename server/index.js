@@ -28,6 +28,23 @@ socketIO.on("connection", (socket) => {
   socket.on("message", (data) => {
     socketIO.emit("messagePush", data);
   });
+  socket.on("getLocations", async (data) => {
+    console.log(data);
+    if (data == "") return;
+    const axios = require("axios");
+    try {
+      // const response = await axios.get(
+      //   "https://happy--hours.herokuapp.com/?f=" + data
+      // );
+      const response = await axios.get(
+        "https://happy--hours.herokuapp.com/?f=" + data
+      );
+      console.log("response  ", response);
+      socket.emit("newRecs", response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  });
   socket.on("retrieveEvents", (data) => {
     // console.log("WHAT", data);
     (async () => {
@@ -49,11 +66,8 @@ socketIO.on("connection", (socket) => {
 
     (async () => {
       try {
-        console.log(
-          `INSERT INTO events (plan, title, description, location, color, startDate, endDate) VALUES ('${data.plan.label}','${data.title}','${data.description}', '${data.location}', '${data.color}', ${data.start}, ${data.end});`
-        );
         await client.query(
-          `INSERT INTO events (plan, title, description, location, color, startDate, endDate) VALUES ('${data.plan.label}','${data.title}','${data.description}', '${data.location}', '${data.color}', ${data.start}, ${data.end});`
+          `INSERT INTO events (plan, title, description, location, color, startDate, endDate) VALUES ('${data.plan.value}','${data.title}','${data.description}', '${data.location}', '${data.color}', ${data.start}, ${data.end});`
         );
         // console.log(results.rows);
       } catch (err) {

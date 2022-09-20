@@ -4,8 +4,15 @@ import { Card } from "primereact/card";
 import { Avatar } from "primereact/avatar";
 import Chatbox from "./Chatbox";
 
-function Comments({ socket }) {
-  const [messages, setMessages] = React.useState([]);
+function Comments({ socket, plan }) {
+  const [messages, setMessages] = React.useState([
+    {
+      text: "Oh, I know a really good sushi place!",
+    },
+    {
+      text: "I just love asian food",
+    },
+  ]);
 
   useEffect(() => {
     socket.on("messagePush", (data) => {
@@ -26,7 +33,10 @@ function Comments({ socket }) {
             border: "1px dashed black",
           }}
         >
-          <Avatar label="P" size="small" />
+          <Avatar
+            label={"ABCDEFGHIJKLMNPQRSTUVWXYZ"[Math.floor(Math.random() * 26)]}
+            size="small"
+          />
           <p style={{ margin: "6px 5px 0px 10px" }}>{message.text}</p>
         </div>
       ))}

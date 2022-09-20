@@ -12,8 +12,8 @@ const Chatbox = ({ socket }) => {
       socket.emit("message", {
         text: message,
         // name: localStorage.getItem("userName"),
-        id: `${socket.id}${Math.random()}`,
-        socketID: socket.id,
+        // id: `${socket.id}${Math.random()}`,
+        // socketID: socket.id,
       });
     }
     setMessage("");

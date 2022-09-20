@@ -14,27 +14,27 @@ const Layout = ({ socket }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [plans, setPlans] = useState([
     {
-      label: "New York",
-      value: "NY",
-      location: "This is going to be a super fun trip!",
+      label: "Trip to Waterloo",
+      value: "UW",
+      location: "University of Waterloo",
       startingDate: "2022-09-20",
     },
     {
-      label: "Rome",
-      value: "RM",
-      location: "This is going to be a super fun trip!",
+      label: "Sleepover Party",
+      value: "NN",
+      location: "Sleep over at E7",
       startingDate: "2022-09-21",
     },
     {
-      label: "London",
-      value: "LDN",
-      location: "This is going to be a super fun trip!",
+      label: "Hailey's birthday party",
+      value: "ND",
+      location: "Planning Hailey's surprise party",
       startingDate: "2022-09-22",
     },
     {
-      label: "Istanbul",
+      label: "Date night",
       value: "IST",
-      location: "This is going to be a super fun trip!",
+      location: "Paris",
       startingDate: "2022-09-23",
     },
     {
@@ -118,7 +118,7 @@ const Layout = ({ socket }) => {
                     .split(" ")
                     .slice(1, 4)
                     .join(" ") +
-                  (activePlan.location ? " * " + activePlan.location : "")
+                  (activePlan.location ? " | " + activePlan.location : "")
                 : ""}
             </p>
           </SplitterPanel>
@@ -153,12 +153,12 @@ const Layout = ({ socket }) => {
                   >
                     <TabPanel header="Details">
                       <Details event={activeEvent} />
-                      <Comments socket={socket} />
+                      <Comments socket={socket} plan={activePlan} />
                       <Chatbox socket={socket} />
                     </TabPanel>
                     <TabPanel header="Suggestions">
                       {/* <DragDrop /> */}
-                      <Recommend plan={activePlan} />
+                      <Recommend plan={activePlan} socket={socket} />
                     </TabPanel>
                   </TabView>
                 ) : (

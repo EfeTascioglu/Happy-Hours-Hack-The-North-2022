@@ -54,6 +54,7 @@ function Calendar({ socket, checkEvent, plan }) {
         start: addEvent.start.getTime(),
         end: addEvent.end.getTime() || "",
         allDay: addEvent.allDay,
+        imageLink: addEvent.imageLink || null,
         location: eventLocation,
         description: details,
         plan: plan,
@@ -79,13 +80,13 @@ function Calendar({ socket, checkEvent, plan }) {
 
   useEffect(() => {
     socket.on("dbEvents", (data) => {
-      console.log(
-        data.map(({ startdate, enddate, ...rest }) => ({
-          ...rest,
-          start: new Date(Number(startdate)),
-          end: new Date(Number(enddate)),
-        }))
-      );
+      // console.log(
+      //   data.map(({ startdate, enddate, ...rest }) => ({
+      //     ...rest,
+      //     start: new Date(Number(startdate)),
+      //     end: new Date(Number(enddate)),
+      //   }))
+      // );
       setEvents(
         data.map(({ startdate, enddate, ...rest }) => ({
           ...rest,
@@ -98,6 +99,13 @@ function Calendar({ socket, checkEvent, plan }) {
 
   const fillDialog = React.useCallback((args) => {
     setAddEvent(args.event);
+    setTitle(args.event && args.event.title ? args.event.title : "New Event");
+    setDetails(
+      args.event && args.event.description ? args.event.description : "Details"
+    );
+    setEventLocation(
+      args.event && args.event.location ? args.event.location : "Location"
+    );
     setAnchor(args.target);
 
     setOpen(true);
@@ -111,13 +119,13 @@ function Calendar({ socket, checkEvent, plan }) {
   );
 
   useEffect(() => {
-    console.log(plan);
+    // console.log(plan);
     socket.emit("retrieveEvents", {
-      plan: plan.label,
+      plan: plan.value,
     });
   }, [plan]);
 
-  console.log(events);
+  // console.log(events);
   return (
     <div
       className="mbsc-col-sm-9 external-event-calendar"
@@ -159,19 +167,27 @@ function Calendar({ socket, checkEvent, plan }) {
             <p style={{ marginTop: "-2em" }}>Title</p>
             <InputText
               id="title"
-              // value={value}
+              placeholder={
+                addEvent && addEvent.title ? addEvent.title : "New Event"
+              }
               onChange={(e) => setTitle(e.target.value)}
             />
             <p>Details</p>
             <InputText
               id="details"
-              // value={value}
+              placeholder={
+                addEvent && addEvent.description
+                  ? addEvent.description
+                  : "Details"
+              }
               onChange={(e) => setDetails(e.target.value)}
             />
             <p>Location</p>
             <InputText
               id="eventLocation"
-              // value={value}
+              placeholder={
+                addEvent && addEvent.location ? addEvent.location : "Location"
+              }
               onChange={(e) => setEventLocation(e.target.value)}
             />
           </span>

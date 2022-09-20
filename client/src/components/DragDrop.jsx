@@ -11,7 +11,7 @@ setOptions({
   themeVariant: "light",
 });
 
-const tasks = [
+const sampleTasks = [
   {
     title: "Bubble Soccer",
     color: "#7a5886",
@@ -56,7 +56,7 @@ const tasks = [
   },
 ];
 
-function Task(props) {
+function Rec(props) {
   const [draggable, setDraggable] = React.useState();
 
   const setDragElm = React.useCallback((elm) => {
@@ -87,14 +87,16 @@ function Task(props) {
   );
 }
 
-function DragDrop() {
+function DragDrop({ recs }) {
   return (
-    <div className="mbsc-col-sm-3">
-      <div className="mbsc-form-group-title">Available tasks</div>
-      {tasks.map((task, i) => (
-        <Task key={i} data={task} />
-      ))}
-    </div>
+    <Card title="Recommendations" style={{ marginTop: "2em" }}>
+      <div className="mbsc-col-sm-3">
+        {/* aeoutaheount */}
+        {recs.map((rec, i) => (
+          <Rec key={i} data={rec} />
+        ))}
+      </div>
+    </Card>
   );
 }
 
